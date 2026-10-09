@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="th" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-Level English Flashcards</title>
+    
+    <!-- Google Fonts: Inter & Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'Inter', 'sans-serif'],
+                        english: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* 3D Perspective Card Flip Effect */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        .card-inner {
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+        
+        /* Smooth Theme Transitions */
+        body, header, div, button, input, select, textarea {
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(148, 163, 184, 0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.4);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.7);
+        }
+    </style>
+</head>
+<body class="h-full bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans antialiased min-h-screen selection:bg-indigo-500 selection:text-white">
+
+    <header class="w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
+            <!-- Logo & Title -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-indigo-500/20">
+                    A
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg sm:text-xl text-slate-900 dark:text-white tracking-tight leading-none">A-Level Vocab</h1>
+                    <p class="text-xs text-indigo-600 dark:text-indigo-400 font-medium mt-0.5">Flashcard Master</p>
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Theme Switcher Button -->
+                <button onclick="toggleTheme()" id="theme-toggle-btn" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-amber-400 transition-all border border-slate-200 dark:border-slate-700 active:scale-95" title="เปลี่ยนโหมดสี (Dark / Light Mode)">
+                    <!-- Sun Icon (Dark Mode Active) -->
+                    <svg id="theme-sun-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    <!-- Moon Icon (Light Mode Active) -->
+                    <svg id="theme-moon-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                </button>
+
+                <!-- Add Vocab Button -->
+                <button onclick="openAddModal()" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all shadow-md shadow-indigo-600/20 active:scale-95">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                    <span class="hidden sm:inline">เพิ่มคำศัพท์</span>
+                    <span class="sm:hidden">เพิ่ม</span>
+                </button>
+
+                <!-- Vocabulary List Modal Toggle -->
+                <button onclick="openManageModal()" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all border border-slate-200 dark:border-slate-700 active:scale-95">
+                    <svg class="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                    <span>คลังคำ (<span id="total-vocab-count">0</span>)</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-6 flex flex-col justify-between items-center">
+        
+        <!-- Progress Bar & Session Info -->
+        <div class="w-full max-w-lg mb-4">
+            <div class="flex justify-between items-center text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+                <div class="flex items-center gap-2">
+                    <span id="session-step-label" class="text-indigo-600 dark:text-indigo-400 font-bold">คำที่ 0 / 0</span>
+                    <span id="remaining-badge" class="px-2.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold">เหลืออีก 0 คำ</span>
+                </div>
+                <button onclick="restartSession()" title="เริ่มต้นสุ่มคิวรอบใหม่" class="text-xs text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 flex items-center gap-1 font-semibold transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    รีเซ็ตคิวสุ่ม
+                </button>
+            </div>
+            <!-- Progress Line -->
+            <div class="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-300/60 dark:border-slate-700/60">
+                <div id="progress-bar-inner" class="h-full bg-gradient-to-r from-indigo-500 to-violet-600 rounded-full transition-all duration-300 w-0"></div>
+            </div>
+        </div>
+
+        <div class="w-full max-w-lg perspective-1000 my-auto">
+            
+            <!-- Active Flashcard Card -->
+            <div id="flashcard-box" class="relative w-full h-80 sm:h-96 cursor-pointer group" onclick="flipCard()">
+                <div id="flashcard-inner" class="card-inner relative w-full h-full transform-style-3d">
+                    
+                    <!-- FRONT SIDE -->
+                    <div class="absolute inset-0 w-full h-full backface-hidden bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 flex flex-col justify-between shadow-xl shadow-slate-200/50 dark:shadow-none hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors">
+                        <!-- Top Front Bar -->
+                        <div class="flex items-center justify-between">
+                            <span id="card-pos-front" class="px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50">
+                                Part of Speech
+                            </span>
+                            <button onclick="speakCurrentWord(event)" class="p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 dark:hover:bg-indigo-600 hover:text-white dark:hover:text-white text-slate-600 dark:text-slate-300 transition-all shadow-sm" title="ฟังเสียงอ่าน">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- Center Front Word -->
+                        <div class="text-center py-4">
+                            <h2 id="card-word-front" class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white font-english tracking-tight leading-tight">
+                                Vocabulary
+                            </h2>
+                            <p class="text-xs text-slate-400 dark:text-slate-500 mt-3 font-medium">แตะที่การ์ดเพื่อดูความหมาย</p>
+                        </div>
+
+                        <!-- Bottom Front Hint -->
+                        <div class="flex items-center justify-center gap-1.5 text-xs text-indigo-500 dark:text-indigo-400 font-semibold">
+                            <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            <span>คลิกเพื่อพลิกดูความหมาย (Flip Card)</span>
+                        </div>
+                    </div>
+
+                    <!-- BACK SIDE -->
+                    <div class="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-gradient-to-b from-indigo-950 via-slate-900 to-slate-950 rounded-3xl border border-indigo-800/60 p-6 sm:p-8 flex flex-col justify-between shadow-2xl text-white">
+                        <!-- Top Back Bar -->
+                        <div class="flex items-center justify-between border-b border-indigo-800/80 pb-3">
+                            <div>
+                                <span id="card-word-back" class="text-lg font-bold text-white font-english">Word</span>
+                                <span id="card-pos-back" class="ml-2 text-xs text-indigo-300 font-semibold">pos</span>
+                            </div>
+                            <button onclick="speakCurrentWord(event)" class="p-2.5 rounded-full bg-white/10 hover:bg-indigo-600 text-indigo-200 hover:text-white transition-all shadow" title="ฟังเสียงอ่าน">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- Center Back Meaning & Example -->
+                        <div class="my-auto space-y-3 text-center">
+                            <div>
+                                <span class="text-[10px] font-bold text-indigo-300 uppercase tracking-widest block mb-1">ความหมาย</span>
+                                <h3 id="card-meaning-back" class="text-2xl sm:text-3xl font-extrabold text-emerald-300">
+                                    คำแปลภาษาไทย
+                                </h3>
+                            </div>
+
+                            <div class="bg-black/40 p-3 sm:p-4 rounded-2xl border border-white/10 text-left backdrop-blur-sm">
+                                <span class="text-[10px] font-bold text-indigo-300 uppercase tracking-wider block mb-1">ตัวอย่างประโยค (Example):</span>
+                                <p id="card-example-back" class="text-xs sm:text-sm text-slate-200 font-english italic leading-relaxed">
+                                    "Example sentence will appear here."
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Back Hint -->
+                        <div class="flex items-center justify-center gap-1.5 text-xs text-indigo-300 font-medium">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            <span>คลิกเพื่อพลิกกลับด้านหน้า</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="completed-box" class="hidden w-full h-80 sm:h-96 bg-white dark:bg-slate-900 rounded-3xl border-2 border-emerald-400 dark:border-emerald-500/60 p-6 sm:p-8 flex flex-col items-center justify-center text-center shadow-xl shadow-emerald-500/10 dark:shadow-none">
+                <div class="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4 text-3xl animate-bounce shadow-sm">
+                    🎉
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">คุณจำได้หมดแล้ว!</h2>
+                <p class="text-sm text-slate-600 dark:text-slate-300 max-w-xs mb-6 font-medium leading-relaxed">
+                    เก่งมาก! คุณได้ทบทวนคำศัพท์ครบทั้งหมด <span id="completed-total-count" class="font-extrabold text-emerald-600 dark:text-emerald-400">0</span> คำในคิวสุ่มรอบนี้เรียบร้อยแล้ว
+                </p>
+                <button onclick="restartSession()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-sm shadow-lg shadow-emerald-500/25 transition-all hover:scale-105 active:scale-95 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    เริ่มสุ่มใหม่อีกครั้ง (Restart)
+                </button>
+            </div>
+        </div>
+
+        <div class="w-full max-w-lg mt-6 flex items-center justify-between gap-3">
+            <button onclick="flipCard()" class="flex-1 py-3 px-4 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 font-semibold text-sm transition-all active:scale-95 flex items-center justify-center gap-2 shadow-sm">
+                <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                <span>พลิกการ์ด (Flip)</span>
+            </button>
+            
+            <button id="btn-next-card" onclick="nextCard()" class="flex-1 py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2">
+                <span>คำถัดไป (Next)</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+        </div>
+
+        <!-- Keyboard Shortcuts Help -->
+        <div class="mt-4 text-center text-xs text-slate-400 dark:text-slate-500 hidden sm:flex items-center gap-4 font-medium">
+            <span><kbd class="px-2 py-0.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 font-mono shadow-sm">Space</kbd> พลิกการ์ด</span>
+            <span><kbd class="px-2 py-0.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 font-mono shadow-sm">→</kbd> หรือ <kbd class="px-2 py-0.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 font-mono shadow-sm">N</kbd> คำถัดไป</span>
+        </div>
+    </main>
+
+    <div id="add-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm hidden transition-opacity">
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
+            <div class="flex items-center justify-between mb-5 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+                    เพิ่มคำศัพท์ใหม่ (Add Word)
+                </h3>
+                <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <form id="add-word-form" onsubmit="handleAddWord(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">คำศัพท์ภาษาอังกฤษ (Word) *</label>
+                    <input type="text" id="input-word" required placeholder="เช่น Ambiguous" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-600 font-english">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">ชนิดของคำ (Part of Speech) *</label>
+                    <select id="input-pos" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-indigo-600 font-medium">
+                        <option value="adj.">adjective (adj.)</option>
+                        <option value="v.">verb (v.)</option>
+                        <option value="n.">noun (n.)</option>
+                        <option value="adv.">adverb (adv.)</option>
+                        <option value="phrv.">phrasal verb (phrv.)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">ความหมายภาษาไทย (Meaning) *</label>
+                    <input type="text" id="input-meaning" required placeholder="เช่น กำกวม, คลุมเครือ" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-600">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">ตัวอย่างประโยค (Example Sentence)</label>
+                    <textarea id="input-example" rows="2" placeholder="เช่น His explanation was ambiguous." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-600 font-english"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <button type="button" onclick="closeAddModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors">
+                        ยกเลิก
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-600/20 transition-all">
+                        บันทึกคำศัพท์
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="manage-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm hidden transition-opacity">
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl relative max-h-[85vh] flex flex-col">
+            <!-- Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">คลังคำศัพท์ทั้งหมด</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">ค้นหา เพิ่ม ลบ หรือคืนค่าเป็นชุดคำศัพท์เริ่มต้น</p>
+                </div>
+                <button onclick="closeManageModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <!-- Search & Reset Controls -->
+            <div class="py-3 flex flex-col sm:flex-row gap-2 items-center justify-between border-b border-slate-100 dark:border-slate-800">
+                <div class="relative w-full sm:w-64">
+                    <input type="text" id="search-vocab" oninput="renderManageList()" placeholder="ค้นหาคำศัพท์..." class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-600">
+                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+
+                <button onclick="resetToDefaults()" class="text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 font-semibold flex items-center gap-1 hover:underline self-end sm:self-auto py-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    ล้างคำศัพท์และคืนค่าเริ่มต้น
+                </button>
+            </div>
+
+            <!-- Scrollable Vocabulary Table List -->
+            <div id="vocab-list-container" class="flex-1 overflow-y-auto my-2 divide-y divide-slate-100 dark:divide-slate-800 pr-1">
+                <!-- Items populated via JS -->
+            </div>
+
+            <!-- Footer -->
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                <button onclick="closeManageModal()" class="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold">
+                    ปิดหน้าต่าง
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Preset high-yield A-Level vocabulary items
+        const defaultVocab = [
+            { id: 1, word: "Ambiguous", pos: "adj.", meaning: "กำกวม, คลุมเครือ, มีหลายความหมาย", example: "The teacher's response was ambiguous, leaving students uncertain about the test format." },
+            { id: 2, word: "Benevolent", pos: "adj.", meaning: "เมตตา, ใจบุญ, หวังดี", example: "A benevolent anonymous donor gave millions of dollars to the children's hospital." },
+            { id: 3, word: "Comprehensive", pos: "adj.", meaning: "ครอบคลุม, ถ้วนทั่ว, สมบูรณ์", example: "The textbook provides a comprehensive guide to preparing for the A-Level exam." },
+            { id: 4, word: "Diligent", pos: "adj.", meaning: "ขยันหมั่นเพียร, ตั้งใจทำงาน", example: "Thanks to her diligent preparation, she achieved a top score in English." },
+            { id: 5, word: "Elaborate", pos: "adj.", meaning: "ประณีต, ละเอียดซับซ้อน", example: "He gave an elaborate explanation of the complex scientific experiment." },
+            { id: 6, word: "Fluctuate", pos: "v.", meaning: "แปรปรวน, ขึ้นๆ ลงๆ, ไม่คงที่", example: "Global currency exchange rates fluctuate constantly based on economic trends." },
+            { id: 7, word: "Inevitable", pos: "adj.", meaning: "หลีกเลี่ยงไม่ได้, ต้องเกิดขึ้นแน่ๆ", example: "With high speed driving, accidents become almost inevitable." },
+            { id: 8, word: "Meticulous", pos: "adj.", meaning: "พิถีพิถัน, ละเอียดถี่ถ้วนมาก", example: "The scientist kept meticulous records of every single observation." },
+            { id: 9, word: "Pragmatic", pos: "adj.", meaning: "เน้นการปฏิบัติจริง, เหมาะสมกับสถานการณ์", example: "We need a pragmatic strategy to solve our budget crisis effectively." },
+            { id: 10, word: "Substantial", pos: "adj.", meaning: "มาก, เป็นชิ้นเป็นอัน, มีสาระสำคัญ", example: "The company reported a substantial increase in profits this quarter." }
+        ];
+
+        // Application State Variables
+        let vocabList = [];
+        let remainingQueue = [];
+        let currentCard = null;
+        let completedCount = 0;
+        let sessionTotal = 0;
+        let isFlipped = false;
+
+        const STORAGE_KEY = 'vocab_list';
+        const THEME_KEY = 'theme';
+
+        // Main Initialize
+        function initApp() {
+            initTheme();
+            loadVocabData();
+            startNewSession();
+        }
+
+        // ==========================================
+        // DARK MODE / LIGHT MODE MANAGEMENT
+        // ==========================================
+        function initTheme() {
+            const savedTheme = localStorage.getItem(THEME_KEY);
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                setThemeMode(true);
+            } else {
+                setThemeMode(false);
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            setThemeMode(!isDark);
+        }
+
+        function setThemeMode(isDark) {
+            const sunIcon = document.getElementById('theme-sun-icon');
+            const moonIcon = document.getElementById('theme-moon-icon');
+
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem(THEME_KEY, 'dark');
+                if (sunIcon) sunIcon.classList.remove('hidden');
+                if (moonIcon) moonIcon.classList.add('hidden');
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem(THEME_KEY, 'light');
+                if (sunIcon) sunIcon.classList.add('hidden');
+                if (moonIcon) moonIcon.classList.remove('hidden');
+            }
+        }
+
+        // ==========================================
+        // LOCALSTORAGE VOCAB DATA MANAGEMENT
+        // ==========================================
+
+        /**
+         * Loads vocabulary from LocalStorage.
+         * NEVER overwrites user-added vocabulary if localStorage key exists.
+         */
+        function loadVocabData() {
+            const storedData = localStorage.getItem(STORAGE_KEY);
+            
+            if (storedData !== null) {
+                try {
+                    vocabList = JSON.parse(storedData);
+                    if (!Array.isArray(vocabList)) {
+                        vocabList = [...defaultVocab];
+                        saveVocabData();
+                    }
+                } catch (e) {
+                    console.error("Failed to parse localStorage data:", e);
+                    vocabList = [...defaultVocab];
+                    saveVocabData();
+                }
+            } else {
+                // First time load: Seed with default words
+                vocabList = [...defaultVocab];
+                saveVocabData();
+            }
+
+            updateVocabCountDisplay();
+        }
+
+        function saveVocabData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(vocabList));
+            updateVocabCountDisplay();
+        }
+
+        function updateVocabCountDisplay() {
+            const countElem = document.getElementById('total-vocab-count');
+            if (countElem) {
+                countElem.innerText = vocabList.length;
+            }
+        }
+
+        // Fisher-Yates Randomization Queue
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // ==========================================
+        // RANDOM SESSION & FLASHCARD LOGIC
+        // ==========================================
+
+        function startNewSession() {
+            if (vocabList.length === 0) {
+                currentCard = null;
+                showEmptyState();
+                return;
+            }
+
+            remainingQueue = shuffleArray(vocabList);
+            sessionTotal = remainingQueue.length;
+            completedCount = 0;
+            isFlipped = false;
+
+            currentCard = remainingQueue.pop();
+
+            document.getElementById('flashcard-box').classList.remove('hidden');
+            document.getElementById('completed-box').classList.add('hidden');
+            document.getElementById('btn-next-card').disabled = false;
+
+            renderCard();
+        }
+
+        function restartSession() {
+            startNewSession();
+        }
+
+        function renderCard() {
+            if (!currentCard) {
+                showCompletedScreen();
+                return;
+            }
+
+            unflipCardQuietly();
+
+            // Front
+            document.getElementById('card-word-front').innerText = currentCard.word;
+            document.getElementById('card-pos-front').innerText = currentCard.pos || 'VOCAB';
+
+            // Back
+            document.getElementById('card-word-back').innerText = currentCard.word;
+            document.getElementById('card-pos-back').innerText = currentCard.pos || '';
+            document.getElementById('card-meaning-back').innerText = currentCard.meaning;
+            document.getElementById('card-example-back').innerText = currentCard.example ? `"${currentCard.example}"` : 'ไม่มีตัวอย่างประโยค';
+
+            // Counters
+            const currentStep = completedCount + 1;
+            document.getElementById('session-step-label').innerText = `คำที่ ${currentStep} / ${sessionTotal}`;
+            document.getElementById('remaining-badge').innerText = `เหลืออีก ${remainingQueue.length} คำ`;
+
+            const percentage = sessionTotal > 0 ? Math.round((completedCount / sessionTotal) * 100) : 0;
+            document.getElementById('progress-bar-inner').style.width = `${percentage}%`;
+        }
+
+        function flipCard() {
+            if (!currentCard) return;
+            const inner = document.getElementById('flashcard-inner');
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                inner.classList.add('is-flipped');
+            } else {
+                inner.classList.remove('is-flipped');
+            }
+        }
+
+        function unflipCardQuietly() {
+            isFlipped = false;
+            document.getElementById('flashcard-inner').classList.remove('is-flipped');
+        }
+
+        function nextCard() {
+            if (!currentCard) return;
+
+            completedCount++;
+
+            if (remainingQueue.length > 0) {
+                currentCard = remainingQueue.pop();
+                renderCard();
+            } else {
+                currentCard = null;
+                showCompletedScreen();
+            }
+        }
+
+        function showCompletedScreen() {
+            document.getElementById('flashcard-box').classList.add('hidden');
+            document.getElementById('completed-box').classList.remove('hidden');
+            document.getElementById('completed-total-count').innerText = sessionTotal;
+
+            document.getElementById('session-step-label').innerText = `เสร็จสิ้น ${sessionTotal} / ${sessionTotal}`;
+            document.getElementById('remaining-badge').innerText = `เหลืออีก 0 คำ`;
+            document.getElementById('progress-bar-inner').style.width = `100%`;
+            document.getElementById('btn-next-card').disabled = true;
+        }
+
+        function showEmptyState() {
+            document.getElementById('flashcard-box').classList.add('hidden');
+            document.getElementById('completed-box').classList.remove('hidden');
+            document.getElementById('completed-box').innerHTML = `
+                <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mb-4 text-2xl">
+                    📁
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">ไม่มีคำศัพท์ในระบบ</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400 max-w-xs mb-6">กรุณากดปุ่ม "เพิ่มคำศัพท์" ด้านบนเพื่อเริ่มสร้างแบบฝึกหัดทบทวน</p>
+                <button onclick="openAddModal()" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md">
+                    + เพิ่มคำศัพท์ใหม่
+                </button>
+            `;
+        }
+
+        // Web Speech API Pronunciation
+        function speakCurrentWord(e) {
+            if (e) e.stopPropagation();
+            if (!currentCard || !currentCard.word) return;
+
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(currentCard.word);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.85;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // ==========================================
+        // ADD VOCABULARY LOGIC
+        // ==========================================
+        function openAddModal() {
+            document.getElementById('add-modal').classList.remove('hidden');
+        }
+        function closeAddModal() {
+            document.getElementById('add-modal').classList.add('hidden');
+            document.getElementById('add-word-form').reset();
+        }
+
+        function handleAddWord(e) {
+            e.preventDefault();
+            const word = document.getElementById('input-word').value.trim();
+            const pos = document.getElementById('input-pos').value;
+            const meaning = document.getElementById('input-meaning').value.trim();
+            const example = document.getElementById('input-example').value.trim();
+
+            if (!word || !meaning) return;
+
+            const newVocab = {
+                id: Date.now(),
+                word,
+                pos,
+                meaning,
+                example
+            };
+
+            // Save immediately to Array and LocalStorage
+            vocabList.unshift(newVocab);
+            saveVocabData();
+
+            closeAddModal();
+
+            // Refresh queue immediately with new word
+            startNewSession();
+        }
+
+        // ==========================================
+        // MANAGE & DELETE VOCABULARY LOGIC
+        // ==========================================
+        function openManageModal() {
+            renderManageList();
+            document.getElementById('manage-modal').classList.remove('hidden');
+        }
+        function closeManageModal() {
+            document.getElementById('manage-modal').classList.add('hidden');
+        }
+
+        function renderManageList() {
+            const container = document.getElementById('vocab-list-container');
+            const query = (document.getElementById('search-vocab').value || '').toLowerCase().trim();
+
+            const filtered = vocabList.filter(item => 
+                item.word.toLowerCase().includes(query) ||
+                item.meaning.toLowerCase().includes(query) ||
+                item.pos.toLowerCase().includes(query)
+            );
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-slate-400 text-xs">
+                        ไม่พบข้อมูลคำศัพท์ที่ตรงกับการค้นหา
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => `
+                <div class="py-3 flex items-center justify-between gap-3 group hover:bg-slate-50 dark:hover:bg-slate-800/50 px-2 rounded-xl transition-colors">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-sm text-slate-900 dark:text-white font-english">${escapeHtml(item.word)}</span>
+                            <span class="px-2 py-0.5 text-[10px] rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 font-semibold">${escapeHtml(item.pos || '')}</span>
+                        </div>
+                        <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5 truncate">${escapeHtml(item.meaning)}</p>
+                        ${item.example ? `<p class="text-[11px] text-slate-400 dark:text-slate-500 font-english italic truncate">${escapeHtml(item.example)}</p>` : ''}
+                    </div>
+                    <button onclick="deleteWord(${item.id})" class="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-lg transition-all" title="ลบคำศัพท์นี้">
+                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function deleteWord(id) {
+            // Delete from list and sync immediately with LocalStorage
+            vocabList = vocabList.filter(item => item.id !== id);
+            saveVocabData();
+            renderManageList();
+
+            // Filter remaining session queue
+            remainingQueue = remainingQueue.filter(item => item.id !== id);
+
+            if (currentCard && currentCard.id === id) {
+                if (remainingQueue.length > 0) {
+                    currentCard = remainingQueue.pop();
+                    renderCard();
+                } else {
+                    startNewSession();
+                }
+            } else {
+                document.getElementById('remaining-badge').innerText = `เหลืออีก ${remainingQueue.length} คำ`;
+            }
+        }
+
+        function resetToDefaults() {
+            if (confirm('คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตคำศัพท์กลับเป็นค่าเริ่มต้น? คำศัพท์เพิ่มเติมของคุณจะถูกลบออกทั้งหมด')) {
+                vocabList = [...defaultVocab];
+                saveVocabData();
+                renderManageList();
+                startNewSession();
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', function(e) {
+            const isAddOpen = !document.getElementById('add-modal').classList.contains('hidden');
+            const isManageOpen = !document.getElementById('manage-modal').classList.contains('hidden');
+            if (isAddOpen || isManageOpen) return;
+
+            if (e.code === 'Space') {
+                e.preventDefault();
+                flipCard();
+            } else if (e.code === 'ArrowRight' || e.key.toLowerCase() === 'n') {
+                e.preventDefault();
+                nextCard();
+            } else if (e.key.toLowerCase() === 's') {
+                speakCurrentWord();
+            }
+        });
+
+        // Initialize App on Window Load
+        window.onload = function() {
+            initApp();
+        };
+    </script>
+</body>
+</html>
